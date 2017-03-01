@@ -29,7 +29,7 @@ class DemoModePluginModule extends \Aurora\System\AbstractModule
 	
 	public function onBeforeUpdateAccount(&$aArgs, &$mResult)
 	{
-		$oEavManager = \CApi::GetSystemManager('eav', 'db');
+		$oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
 		$oAccount = $oEavManager->getEntity($aArgs['AccountId']);
 		if (strpos($oAccount->Login, 'demo') !== false)
 		{
