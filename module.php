@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Afterlogic Corp.
+ * @copyright Copyright (c) 2017, Afterlogic Corp.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@ class DemoModePluginModule extends \Aurora\System\AbstractModule
 		$oAccount = $oEavManager->getEntity($aArgs['AccountId']);
 		if (strpos($oAccount->Login, 'demo') !== false)
 		{
-			throw new \System\Exceptions\AuroraApiException(\System\Notifications::DemoAccount);
+			throw new \System\Exceptions\ApiException(\System\Notifications::DemoAccount);
 		}
 	}
 }
