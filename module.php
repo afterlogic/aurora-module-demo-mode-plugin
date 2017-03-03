@@ -20,7 +20,7 @@
 
 namespace Aurora\Modules;
 
-class DemoModePluginModule extends \Aurora\System\AbstractModule
+class DemoModePluginModule extends \Aurora\System\Module\AbstractModule
 {
 	public function init() 
 	{
@@ -33,7 +33,7 @@ class DemoModePluginModule extends \Aurora\System\AbstractModule
 		$oAccount = $oEavManager->getEntity($aArgs['AccountId']);
 		if (strpos($oAccount->Login, 'demo') !== false)
 		{
-			throw new \System\Exceptions\ApiException(\System\Notifications::DemoAccount);
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::DemoAccount);
 		}
 	}
 }
