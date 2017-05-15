@@ -18,6 +18,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function init() 
 	{
 		$this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeUpdateAccount'));
+		
+		$this->subscribeEvent('UpdateAutoresponder::before', array($this, 'onUpdateSettings'));
+		$this->subscribeEvent('UpdateFilters::before', array($this, 'onUpdateSettings'));
+		$this->subscribeEvent('UpdateForward::before', array($this, 'onUpdateSettings'));
+		$this->subscribeEvent('SetupSystemFolders::before', array($this, 'onUpdateSettings'));
 	}
 	
 	public function onBeforeUpdateAccount(&$aArgs, &$mResult)
@@ -28,5 +33,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::DemoAccount);
 		}
+	}
+	
+	public function onUpdateSettings(&$aArgs, &$mResult)
+	{
+		throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::DemoAccount);
+		
+		return true;
 	}
 }
