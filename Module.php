@@ -15,30 +15,36 @@ namespace Aurora\Modules\DemoModePlugin;
  */
 class Module extends \Aurora\System\Module\AbstractModule
 {
+	protected $bDemoUser = false;
+	
 	public function init() 
 	{
-		$this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeUpdateAccount'));
-		
-		$this->subscribeEvent('UpdateAutoresponder::before', array($this, 'onUpdateSettings'));
-		$this->subscribeEvent('UpdateFilters::before', array($this, 'onUpdateSettings'));
-		$this->subscribeEvent('UpdateForward::before', array($this, 'onUpdateSettings'));
-		$this->subscribeEvent('SetupSystemFolders::before', array($this, 'onUpdateSettings'));
-	}
-	
-	public function onBeforeUpdateAccount(&$aArgs, &$mResult)
-	{
-		$oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
-		$oAccount = $oEavManager->getEntity($aArgs['AccountId']);
-		if (strpos($oAccount->Login, 'demo') !== false)
+		$oUser = \Aurora\System\Api::getAuthenticatedUser();
+		if ($oUser instanceof \CUser)
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::DemoAccount);
+			$aMatches = array();
+			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
+			if (count($aMatches) > 0)
+			{
+				$this->bDemoUser = true;
+				$this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeForbiddenAction'));
+				$this->subscribeEvent('UpdateAutoresponder::before', array($this, 'onBeforeForbiddenAction'));
+				$this->subscribeEvent('UpdateFilters::before', array($this, 'onBeforeForbiddenAction'));
+				$this->subscribeEvent('UpdateForward::before', array($this, 'onBeforeForbiddenAction'));
+				$this->subscribeEvent('SetupSystemFolders::before', array($this, 'onBeforeForbiddenAction'));
+			}
 		}
 	}
 	
-	public function onUpdateSettings(&$aArgs, &$mResult)
+	public function GetSettings()
+	{
+		return array(
+			'IsDemoUser' => $this->bDemoUser,
+		);
+	}
+	
+	public function onBeforeForbiddenAction(&$aArgs, &$mResult)
 	{
 		throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::DemoAccount);
-		
-		return true;
 	}
 }
