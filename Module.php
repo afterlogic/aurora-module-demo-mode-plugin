@@ -20,7 +20,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function init() 
 	{
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oUser instanceof \CUser)
+		if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
 		{
 			$aMatches = array();
 			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
