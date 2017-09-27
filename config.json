@@ -21,6 +21,10 @@
 	],
 	"PostProcessType": [
 		"",
+		"string"
+	],
+	"SampleContactData": [
+		"",
 		"array"
 	]
 }
