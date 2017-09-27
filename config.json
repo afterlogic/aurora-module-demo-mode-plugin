@@ -2,5 +2,25 @@
     "Disabled": [
 		false,
 		"bool"
+	],
+	"DemoLogin": [
+		"",
+		"string"
+	],
+	"DemoRealPass": [
+		"",
+		"string"
+	],
+	"ApiUrl": [
+		"",
+		"string"
+	],
+	"PostProcessScript": [
+		"",
+		"string"
+	],
+	"PostProcessType": [
+		"",
+		"array"
 	]
 }
