@@ -27,9 +27,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
 		{
-			$aMatches = array();
-			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
-			if (count($aMatches) > 0)
+//			$aMatches = array();
+//			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
+			
+			$sDemoLogin = $this->getConfig('DemoLogin', '');
+			
+			$sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $oUser->PublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
+			$sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
+
+			if ($sCurrentDomain === $sDemoDomain)
 			{
 				$this->bDemoUser = true;
 				$this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeForbiddenAction'));
@@ -44,7 +50,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetSettings()
 	{
 		return array(
-			'IsDemoUser' => $this->bDemoUser,
+			'IsDemoUser' => $this->bDemoUser || $this->bNewDemoUser,
 		);
 	}
 	
@@ -55,12 +61,40 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function onBeforeLogin(&$aArgs, &$mResult)
 	{
+		$DemoUserType = $this->getConfig('DemoUserType1', '');
+		$sDemoLogin = $this->getConfig('DemoLogin', '');
+		
+		if ($sDemoLogin === $aArgs['Login'])
+		{
+			switch ($DemoUserType)
+			{
+//				case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Mail:
+				case 'Mail':
+					$userCredentials = $this->createMailbox();
+					break;
+//				case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Db:
+				case 'Db':
+					$userCredentials = $this->createDbUser();
+					break;
+			}
+
+			if (!empty($userCredentials)) {
+				$aArgs['Login'] = $userCredentials['login'];
+				$aArgs['Password'] = $userCredentials['password'];
+				$this->bNewDemoUser = true;
+			}
+		}
+	}
+	
+	public function createMailbox($aArgs)
+	{
+		$result = null;
 		$sDemoLogin = $this->getConfig('DemoLogin', '');
 		$sDemoRealPass = $this->getConfig('DemoRealPass', '');
 		$sApiUrl = $this->getConfig('ApiUrl', '');
 		$sNewUserLogin = '';
 		
-		if ($sDemoLogin && $sDemoLogin === $aArgs['Login'] && $sApiUrl !== '')
+		if ($sDemoLogin && $sApiUrl !== '')
 		{
 			$sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
 		
@@ -70,11 +104,36 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$sEmail = $sNewUserLogin."@".$sDomain;
 				
-				$aArgs['Login'] = $sEmail;
-				$aArgs['Password'] = $sDemoRealPass;
-				$this->bNewDemoUser = true;
+				$result = array(
+					'login' => $sEmail,
+					'password' => $sDemoRealPass
+				);
 			}
 		}
+		
+		return $result;
+	}
+	
+	public function createDbUser()
+	{
+		$result = null;
+		$sDemoLogin = $this->getConfig('DemoLogin', '');
+		$sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
+		
+		$sLogin = 'user-'.base_convert(substr(str_pad(microtime(true)*100, 15, '0'), -11, 8), 10, 32).'@'.$sDomain;
+		$sPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
+
+		$dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount(0, 0, $sLogin, $sPassword);
+		
+		if (isset($dbAccont['EntityId']))
+		{
+			$result = array(
+				'login' => $sLogin,
+				'password' => $sPassword
+			);
+		}
+			
+		return $result;
 	}
 	
 	public function onAfterLogin(&$aArgs, &$mResult)

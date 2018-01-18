@@ -1,7 +1,16 @@
 {
-    "Disabled": [
+	"Disabled": [
 		false,
 		"bool"
+	],
+	"DemoUserType": [
+		"Mail",
+		"spec",
+		"\\Aurora\\Modules\\DemoModePlugin\\Enums\\DemoUserType"
+	],
+	"DemoUserType1": [
+		"Mail",
+		"string"
 	],
 	"DemoLogin": [
 		"",
