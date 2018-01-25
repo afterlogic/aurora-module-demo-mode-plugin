@@ -16,11 +16,12 @@ module.exports = function (oAppData) {
 	{
 		return {
 			start: function (ModulesManager) {
-				App.subscribeEvent('OAuthAccountChange::before', function (oParams) {
-					Screens.showError(TextUtils.i18n('COREWEBCLIENT/INFO_DEMO_THIS_FEATURE_IS_DISABLED'));
-					oParams.AllowConnect = false;
-					oParams.AllowDisconnect = false;
-				});
+				//No more needed. With separate demo account for each user, we can allow to use social authorization
+				// App.subscribeEvent('OAuthAccountChange::before', function (oParams) {
+					// Screens.showError(TextUtils.i18n('COREWEBCLIENT/INFO_DEMO_THIS_FEATURE_IS_DISABLED'));
+					// oParams.AllowConnect = false;
+					// oParams.AllowDisconnect = false;
+				// });
 			}
 		};
 	}
