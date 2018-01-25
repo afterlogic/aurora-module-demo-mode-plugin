@@ -86,7 +86,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 	}
 	
-	public function createMailbox($aArgs)
+	public function createMailbox()
 	{
 		$result = null;
 		$sDemoLogin = $this->getConfig('DemoLogin', '');
