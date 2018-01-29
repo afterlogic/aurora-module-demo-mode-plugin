@@ -61,19 +61,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function onBeforeLogin(&$aArgs, &$mResult)
 	{
-		$DemoUserType = $this->getConfig('DemoUserType1', '');
+		$DemoUserType = $this->getConfig('DemoUserType', '');
 		$sDemoLogin = $this->getConfig('DemoLogin', '');
 		
 		if ($sDemoLogin === $aArgs['Login'])
 		{
 			switch ($DemoUserType)
 			{
-//				case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Mail:
-				case 'Mail':
+				case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Mail:
 					$userCredentials = $this->createMailbox();
 					break;
-//				case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Db:
-				case 'Db':
+				case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Db:
 					$userCredentials = $this->createDbUser();
 					break;
 			}

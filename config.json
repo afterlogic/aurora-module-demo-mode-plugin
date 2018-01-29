@@ -8,10 +8,6 @@
 		"spec",
 		"\\Aurora\\Modules\\DemoModePlugin\\Enums\\DemoUserType"
 	],
-	"DemoUserType1": [
-		"Mail",
-		"string"
-	],
 	"DemoLogin": [
 		"",
 		"string"
