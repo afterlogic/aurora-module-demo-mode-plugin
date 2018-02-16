@@ -112,7 +112,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $result;
 	}
 	
-	public function createDbUser()
+	protected function createDbUser()
 	{
 		$result = null;
 		$sDemoLogin = $this->getConfig('DemoLogin', '');
