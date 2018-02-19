@@ -84,7 +84,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 	}
 	
-	public function createMailbox()
+	protected function createMailbox()
 	{
 		$result = null;
 		$sDemoLogin = $this->getConfig('DemoLogin', '');
@@ -134,7 +134,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $result;
 	}
 	
-	public function onAfterLogin(&$aArgs, &$mResult)
+	protected function onAfterLogin(&$aArgs, &$mResult)
 	{
 		if ($this->bNewDemoUser)
 		{
@@ -143,7 +143,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 	}
 	
-	public function populateContacts($aArgs, $mResult)
+	protected function populateContacts($aArgs, $mResult)
 	{
 		$oContactsDecorator = \Aurora\Modules\Contacts\Module::Decorator();
 		
