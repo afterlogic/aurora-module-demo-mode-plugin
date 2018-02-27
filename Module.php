@@ -19,6 +19,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	protected $bNewDemoUser = false;
 	
+	/***** private functions *****/
+	
 	public function init() 
 	{
 		$this->subscribeEvent('Core::Login::before', array($this, 'onBeforeLogin'), 10);
@@ -45,13 +47,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->subscribeEvent('SetupSystemFolders::before', array($this, 'onBeforeForbiddenAction'));
 			}
 		}
-	}
-	
-	public function GetSettings()
-	{
-		return array(
-			'IsDemoUser' => $this->bDemoUser || $this->bNewDemoUser,
-		);
 	}
 	
 	public function onBeforeForbiddenAction(&$aArgs, &$mResult)
@@ -134,7 +129,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $result;
 	}
 	
-	protected function onAfterLogin(&$aArgs, &$mResult)
+	public function onAfterLogin(&$aArgs, &$mResult)
 	{
 		if ($this->bNewDemoUser)
 		{
@@ -191,7 +186,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 	}
 	
-	public function populateInbox($aArgs)
+	protected function populateInbox($aArgs)
 	{
 		$sResult = false;
 		$result = preg_match("/(.+)@(?:localhost|.+\..+)/", $aArgs['Login'], $matches);
@@ -210,4 +205,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		return $sResult;
 	}
+	
+	/***** private functions *****/
+	
+	/***** public functions might be called with web API *****/
+	
+	public function GetSettings()
+	{
+		return array(
+			'IsDemoUser' => $this->bDemoUser || $this->bNewDemoUser,
+		);
+	}
+	
+	/***** public functions might be called with web API *****/
 }
