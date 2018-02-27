@@ -139,22 +139,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($this->bNewDemoUser)
 		{
 			$this->populateInbox($aArgs);
-			$this->populateContacts($aArgs, $mResult);
+			$this->populateContacts($aArgs);
 		}
 	}
 	
-	protected function populateContacts($aArgs, $mResult)
+	protected function populateContacts($aArgs)
 	{
 		$oContactsDecorator = \Aurora\Modules\Contacts\Module::Decorator();
 		
 		if ($oContactsDecorator)
 		{
-			//workaround for api get worked
-			if (isset($mResult['AuthToken']))
-			{
-				\Aurora\System\Api::getAuthenticatedUserId($mResult['AuthToken']);
-			}
-				
 			$oGroupResult = $oContactsDecorator->CreateGroup(array(
 				'Name' => 'AfterLogic Support Team'
 			));
