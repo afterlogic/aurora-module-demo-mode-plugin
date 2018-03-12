@@ -111,11 +111,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$result = null;
 		$sDemoLogin = $this->getConfig('DemoLogin', '');
+		$sDemoRealPass = $this->getConfig('DemoRealPass', '');
 		$sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
 		
 		$sLogin = 'user-'.base_convert(substr(str_pad(microtime(true)*100, 15, '0'), -11, 8), 10, 32).'@'.$sDomain;
-		$sPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
-
+		$sPassword = !empty($sDemoRealPass) ? $sDemoRealPass : substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
+		
 		$dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount(0, 0, $sLogin, $sPassword);
 		
 		if (isset($dbAccont['EntityId']))
