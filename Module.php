@@ -77,6 +77,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->bNewDemoUser = true;
 			}
 		}
+		else
+		{
+			list(,$sDomain) = explode('@', $aArgs['Login']);
+			list(,$sDemoDomain) = explode('@', $sDemoLogin);
+			if ($sDomain === $sDemoDomain && $aArgs['Password'] === 'demo')
+			{
+				$sDemoRealPass = $this->getConfig('DemoRealPass', '');
+				$aArgs['Password'] = $sDemoRealPass;
+			}
+			
+		}
 	}
 	
 	protected function createMailbox()
