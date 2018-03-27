@@ -74,6 +74,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if (!empty($userCredentials)) {
 				$aArgs['Login'] = $userCredentials['login'];
 				$aArgs['Password'] = $userCredentials['password'];
+				$aArgs['NewDemoUser'] = true;
 				$this->bNewDemoUser = true;
 			}
 		}
