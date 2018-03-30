@@ -80,14 +80,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			list(,$sDomain) = explode('@', $aArgs['Login']);
-			list(,$sDemoDomain) = explode('@', $sDemoLogin);
-			if ($sDomain === $sDemoDomain && $aArgs['Password'] === 'demo')
+			$aLogin = explode('@', $aArgs['Login']);
+			$aDemoLogin = explode('@', $sDemoLogin);
+			if (isset($aLogin[1], $aDemoLogin[1]))
 			{
-				$sDemoRealPass = $this->getConfig('DemoRealPass', '');
-				$aArgs['Password'] = $sDemoRealPass;
+				$sDomain = $aLogin[1];
+				$sDemoDomain = $aDemoLogin[1];
+				if ($sDomain === $sDemoDomain && $aArgs['Password'] === 'demo')
+				{
+					$sDemoRealPass = $this->getConfig('DemoRealPass', '');
+					$aArgs['Password'] = $sDemoRealPass;
+				}
 			}
-			
 		}
 	}
 	
