@@ -227,10 +227,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/***** public functions might be called with web API *****/
 	
+	public function IsDemoUser()
+	{
+		return $this->bDemoUser || $this->bNewDemoUser;
+	}
+	
 	public function GetSettings()
 	{
 		return array(
-			'IsDemoUser' => $this->bDemoUser || $this->bNewDemoUser,
+			'IsDemoUser' => $this->IsDemoUser()
 		);
 	}
 	
