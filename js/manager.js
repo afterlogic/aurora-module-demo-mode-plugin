@@ -2,17 +2,13 @@
 
 module.exports = function (oAppData) {
 	var
-		TextUtils = require('%PathToCoreWebclientModule%/js/utils/Text.js'),
-	
 		App = require('%PathToCoreWebclientModule%/js/App.js'),
-		Screens = require('%PathToCoreWebclientModule%/js/Screens.js'),
 		
-		bNormalUser = App.getUserRole() === Enums.UserRole.NormalUser,
 		oSettings = oAppData['%ModuleName%'],
 		bDemoUser = !!oSettings.IsDemoUser
 	;
 	
-	if (bNormalUser && bDemoUser)
+	if (App.isUserNormalOrTenant() && bDemoUser)
 	{
 		return {
 			start: function (ModulesManager) {
