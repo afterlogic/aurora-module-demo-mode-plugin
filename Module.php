@@ -26,8 +26,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function init() 
 	{
-		$this->subscribeEvent('Login::before', array($this, 'onBeforeLogin'), 10);
-		$this->subscribeEvent('Login::after', array($this, 'onAfterLogin'), 10);
+		$this->subscribeEvent('Core::Login::before', array($this, 'onBeforeLogin'), 10);
+		$this->subscribeEvent('Core::Login::after', array($this, 'onAfterLogin'), 10);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
