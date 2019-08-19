@@ -147,9 +147,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sLogin = 'user-'.base_convert(substr(str_pad(microtime(true)*100, 15, '0'), -11, 8), 10, 32).'@'.$sDomain;
 		$sPassword = !empty($sDemoRealPass) ? $sDemoRealPass : substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
 		
-		$dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount(0, 0, $sLogin, $sPassword);
+		$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName('Demo');
+		if (!$iDemoTenantId)
+		{
+			$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->CreateTenant(0, 'Demo');
+		}
+
+		$dbAccont = null;
+		if ($iDemoTenantId)
+		{
+			$dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount($iDemoTenantId, 0, $sLogin, $sPassword);
+		}
 		
-		if (isset($dbAccont['EntityId']))
+		if (isset($dbAccont) && isset($dbAccont['EntityId']))
 		{
 			$result = array(
 				'login' => $sLogin,
