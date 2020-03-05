@@ -143,14 +143,30 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sDemoLogin = $this->getConfig('DemoLogin', '');
 		$sDemoRealPass = $this->getConfig('DemoRealPass', '');
 		$sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
-		
+		$iDemoTenantId = false;
+
 		$sLogin = 'user-'.base_convert(substr(str_pad(microtime(true)*100, 15, '0'), -11, 8), 10, 32).'@'.$sDomain;
 		$sPassword = !empty($sDemoRealPass) ? $sDemoRealPass : substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
 		
-		$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName('Demo');
-		if (!$iDemoTenantId)
+		\Aurora\Api::skipCheckUserRole(true);
+
+		$oSettings =&\Aurora\System\Api::GetSettings();
+		if ($oSettings->GetConf('EnableMultiTenant'))
 		{
-			$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->CreateTenant(0, 'Demo');
+			$sDemoTenantName = 'Demo';
+			$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName($sDemoTenantName);
+			if (!$iDemoTenantId)
+			{
+				$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->CreateTenant(0, $sDemoTenantName);
+			}
+		}
+		else
+		{
+			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
+			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant)
+			{
+				$iDemoTenantId = $oTenant->EntityId;
+			}
 		}
 
 		$dbAccont = null;
@@ -158,6 +174,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount($iDemoTenantId, 0, $sLogin, $sPassword);
 		}
+
+		\Aurora\Api::skipCheckUserRole(false);
 		
 		if (isset($dbAccont) && isset($dbAccont['EntityId']))
 		{
