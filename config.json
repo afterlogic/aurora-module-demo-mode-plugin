@@ -31,5 +31,9 @@
 	"SampleContactData": [
 		"",
 		"array"
+	],
+	"AdvancedMode": [
+		true,
+		"bool"
 	]
 }
