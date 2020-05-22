@@ -220,12 +220,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 	protected function populateContacts($aArgs)
 	{
 		$oContactsDecorator = \Aurora\Modules\Contacts\Module::Decorator();
+		$sLogin = isset($aArgs['Login']) ?  $aArgs['Login'] : '';
+		$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sLogin);
 
-		if ($oContactsDecorator)
+		if ($oContactsDecorator
+			&& $oUser instanceof \Aurora\Modules\Core\Classes\User)
 		{
-			$oGroupResult = $oContactsDecorator->CreateGroup(array(
-				'Name' => 'Afterlogic Support Team'
-			));
+			$oGroupResult = $oContactsDecorator->CreateGroup(
+				['Name' => 'Afterlogic Support Team'],
+				$oUser->EntityId
+			);
 
 			$aContactData = $this->getConfig('SampleContactData');
 
@@ -243,7 +247,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$aContactData['GroupUUIDs'] = array($oGroupResult);
 					}
 
-					$oContactsDecorator->CreateContact($aContactData);
+					$oContactsDecorator->CreateContact($aContactData, $oUser->EntityId);
 				}
 			}
 
