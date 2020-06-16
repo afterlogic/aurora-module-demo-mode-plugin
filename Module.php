@@ -174,22 +174,30 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
-			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant)
+			// $oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
+			// if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant)
+			// {
+				// $iDemoTenantId = $oTenant->EntityId;
+			// }
+
+			$aTenants = \Aurora\Modules\Core\Module::Decorator()->GetTenants();
+			
+			if (is_numeric($aTenants['Items'][0]['Id']))
 			{
-				$iDemoTenantId = $oTenant->EntityId;
+				$iDemoTenantId = (int)$aTenants['Items'][0]['Id'];
 			}
 		}
 
-		$dbAccont = null;
+		$oDBAccount = null;
 		if ($iDemoTenantId)
 		{
-			$dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount($iDemoTenantId, 0, $sLogin, $sPassword);
+			
+			$oDBAccount = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount($iDemoTenantId, 0, $sLogin, $sPassword);
 		}
 
 		\Aurora\Api::skipCheckUserRole(false);
 
-		if (isset($dbAccont) && isset($dbAccont['EntityId']))
+		if (isset($oDBAccount) && isset($oDBAccount['EntityId']))
 		{
 			$result = array(
 				'login' => $sLogin,
