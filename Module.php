@@ -41,7 +41,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Core::GetDigestHash::after', array($this, 'onAfterGetDigestHash'), 10);
 
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+		if ($oUser instanceof \Aurora\Modules\Core\Models\User)
 		{
 //			$aMatches = array();
 //			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
@@ -175,9 +175,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		else
 		{
 			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
-			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant)
+			if ($oTenant instanceof \Aurora\Modules\Core\Models\Tenant)
 			{
-				$iDemoTenantId = $oTenant->EntityId;
+				$iDemoTenantId = $oTenant->Id;
 			}
 		}
 
@@ -224,11 +224,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sLogin);
 
 		if ($oContactsDecorator
-			&& $oUser instanceof \Aurora\Modules\Core\Classes\User)
+			&& $oUser instanceof \Aurora\Modules\Core\Models\User)
 		{
 			$oGroupResult = $oContactsDecorator->CreateGroup(
 				['Name' => 'Afterlogic Support Team'],
-				$oUser->EntityId
+				$oUser->Id
 			);
 
 			$aContactData = $this->getConfig('SampleContactData');
@@ -247,7 +247,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$aContactData['GroupUUIDs'] = array($oGroupResult);
 					}
 
-					$oContactsDecorator->CreateContact($aContactData, $oUser->EntityId);
+					$oContactsDecorator->CreateContact($aContactData, $oUser->Id);
 				}
 			}
 
