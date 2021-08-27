@@ -59,6 +59,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->subscribeEvent('UpdateFilters::before', array($this, 'onBeforeForbiddenAction'));
 				$this->subscribeEvent('UpdateForward::before', array($this, 'onBeforeForbiddenAction'));
 				$this->subscribeEvent('SetupSystemFolders::before', array($this, 'onBeforeForbiddenAction'));
+				$this->subscribeEvent('CreatePublicLink::before', array($this, 'onBeforeForbiddenAction'));
 			}
 		}
 	}
