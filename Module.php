@@ -22,18 +22,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	protected $bNewDemoUser = false;
 
-	/***** private functions *****/
-
-	protected function checkDemoUser($sPublicId)
-	{
-		$sDemoLogin = $this->getConfig('DemoLogin', '');
-
-		$sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $sPublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
-		$sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
-
-		return ($sCurrentDomain === $sDemoDomain);
-	}
-
 	public function init()
 	{
 		$this->subscribeEvent('Core::Login::before', array($this, 'onBeforeLogin'), 10);
@@ -51,7 +39,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $oUser->PublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
 			$sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
 
-			if ($this->checkDemoUser($oUser->PublicId))
+			if ($this->CheckDemoUser($oUser->PublicId))
 			{
 				$this->bDemoUser = true;
 				$this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeForbiddenAction'));
@@ -62,6 +50,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->subscribeEvent('CreatePublicLink::before', array($this, 'onBeforeForbiddenAction'));
 			}
 		}
+
+		$this->denyMethodsCallByWebApi([
+			'CheckDemoUser',
+		]);
+	}
+
+	public function CheckDemoUser($sPublicId)
+	{
+		$sDemoLogin = $this->getConfig('DemoLogin', '');
+
+		$sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $sPublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
+		$sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
+
+		return ($sCurrentDomain === $sDemoDomain);
 	}
 
 	public function onBeforeForbiddenAction(&$aArgs, &$mResult)
@@ -212,7 +214,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	public function onAfterGetDigestHash(&$aArgs, &$mResult)
 	{
-		if ($this->checkDemoUser($aArgs['Login']))
+		if ($this->CheckDemoUser($aArgs['Login']))
 		{
 			$mResult = \md5($aArgs['Login'] . ':' . $aArgs['Realm'] . ':demo');
 		}
