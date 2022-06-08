@@ -1,75 +1,75 @@
 {
-  "Disabled": [
-    false,
-    "bool"
-  ],
-  "Disabled_Description": [
-    "",
-    "string"
-  ],
-  "DemoUserType": [
-    "Mail",
-    "spec",
-    "\\Aurora\\Modules\\DemoModePlugin\\Enums\\DemoUserType"
-  ],
-  "DemoUserType_Description": [
-    "",
-    "string"
-  ],
-  "DemoLogin": [
-    "",
-    "string"
-  ],
-  "DemoLogin_Description": [
-    "",
-    "string"
-  ],
-  "DemoRealPass": [
-    "",
-    "string"
-  ],
-  "DemoRealPass_Description": [
-    "",
-    "string"
-  ],
-  "ApiUrl": [
-    "",
-    "string"
-  ],
-  "ApiUrl_Description": [
-    "",
-    "string"
-  ],
-  "PostProcessScript": [
-    "",
-    "string"
-  ],
-  "PostProcessScript_Description": [
-    "",
-    "string"
-  ],
-  "PostProcessType": [
-    "",
-    "string"
-  ],
-  "PostProcessType_Description": [
-    "",
-    "string"
-  ],
-  "SampleContactData": [
-    "",
-    "array"
-  ],
-  "SampleContactData_Description": [
-    "",
-    "string"
-  ],
-  "AdvancedMode": [
-    true,
-    "bool"
-  ],
-  "AdvancedMode_Description": [
-    "",
-    "string"
-  ]
+	"Disabled": [
+		false,
+		"bool"
+	],
+	"Disabled_Description": [
+		"",
+		"string"
+	],
+	"DemoUserType": [
+		"Mail",
+		"spec",
+		"\\Aurora\\Modules\\DemoModePlugin\\Enums\\DemoUserType"
+	],
+	"DemoUserType_Description": [
+		"",
+		"string"
+	],
+	"DemoLogin": [
+		"",
+		"string"
+	],
+	"DemoLogin_Description": [
+		"",
+		"string"
+	],
+	"DemoRealPass": [
+		"",
+		"string"
+	],
+	"DemoRealPass_Description": [
+		"",
+		"string"
+	],
+	"ApiUrl": [
+		"",
+		"string"
+	],
+	"ApiUrl_Description": [
+		"",
+		"string"
+	],
+	"PostProcessScript": [
+		"",
+		"string"
+	],
+	"PostProcessScript_Description": [
+		"",
+		"string"
+	],
+	"PostProcessType": [
+		"",
+		"string"
+	],
+	"PostProcessType_Description": [
+		"",
+		"string"
+	],
+	"SampleContactData": [
+		"",
+		"array"
+	],
+	"SampleContactData_Description": [
+		"",
+		"string"
+	],
+	"AdvancedMode": [
+		true,
+		"bool"
+	],
+	"AdvancedMode_Description": [
+		"",
+		"string"
+	]
 }
