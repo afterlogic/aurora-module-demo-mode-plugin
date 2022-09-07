@@ -7,6 +7,12 @@
 
 namespace Aurora\Modules\DemoModePlugin;
 
+use Aurora\Modules\Mail\Classes\SieveFilter;
+use Aurora\Modules\Mail\Models\MailAccount;
+use Aurora\System\Exceptions\ApiException;
+use MailSo\Mime\Email;
+use MailSo\Mime\EmailCollection;
+
 /**
  * Makes restriction of access to some functionality for demo users.
  *
@@ -24,6 +30,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	public function init()
 	{
+		$this->aErrors = [
+			Enums\ErrorCodes::CannotAddFilterToExternalEmail => $this->i18N('ERROR_CANNOT_ADD_FILTER_TO_EXTERNAL_EMAIL'),
+		];
+
 		$this->subscribeEvent('Core::Login::before', array($this, 'onBeforeLogin'), 10);
 		$this->subscribeEvent('Core::Login::after', array($this, 'onAfterLogin'), 10);
 		$this->subscribeEvent('Core::GetDigestHash::after', array($this, 'onAfterGetDigestHash'), 10);
@@ -44,10 +54,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->bDemoUser = true;
 				$this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeForbiddenAction'));
 				$this->subscribeEvent('UpdateAutoresponder::before', array($this, 'onBeforeForbiddenAction'));
-				$this->subscribeEvent('UpdateFilters::before', array($this, 'onBeforeForbiddenAction'));
+//				$this->subscribeEvent('UpdateFilters::before', array($this, 'onBeforeForbiddenAction'));
 				$this->subscribeEvent('UpdateForward::before', array($this, 'onBeforeForbiddenAction'));
 				$this->subscribeEvent('SetupSystemFolders::before', array($this, 'onBeforeForbiddenAction'));
 				$this->subscribeEvent('CreatePublicLink::before', array($this, 'onBeforeForbiddenAction'));
+				$this->subscribeEvent('CreateFilterInstance', array($this, 'onCreateFilterInstance'));
 			}
 		}
 
@@ -217,6 +228,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($this->CheckDemoUser($aArgs['Login']))
 		{
 			$mResult = \md5($aArgs['Login'] . ':' . $aArgs['Realm'] . ':demo');
+		}
+	}
+
+	public function onCreateFilterInstance($aArgs)
+	{
+		if ($this->IsDemoUser()) {
+			$oAccount = $aArgs['Account'];
+			if ($oAccount instanceof MailAccount) {
+				$sEmail = $oAccount->Email;
+				$sEmailDomain = Email::Parse($sEmail)->getDomain();
+				if ($aArgs['Filter'] instanceof SieveFilter && !empty($aArgs['Filter']->Email)) {
+					$sFilterDomain = Email::Parse($aArgs['Filter']->Email)->getDomain();
+					if (strtolower($sEmailDomain) !== strtolower($sFilterDomain)) {
+						throw new ApiException(Enums\ErrorCodes::CannotAddFilterToExternalEmail);
+					}
+				}
+			}
 		}
 	}
 
