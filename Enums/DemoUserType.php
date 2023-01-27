@@ -14,14 +14,14 @@ namespace Aurora\Modules\DemoModePlugin\Enums;
  */
 class DemoUserType extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const Mail = 1;
-	const Db = 2;
-	
-	/**
-	 * @var array
-	 */
-	protected $aConsts = array(
-		'Mail' => self::Mail,
-		'Db' => self::Db
-	);	
+    public const Mail = 1;
+    public const Db = 2;
+
+    /**
+     * @var array
+     */
+    protected $aConsts = array(
+        'Mail' => self::Mail,
+        'Db' => self::Db
+    );
 }

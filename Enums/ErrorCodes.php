@@ -14,12 +14,12 @@ namespace Aurora\Modules\DemoModePlugin\Enums;
  */
 class ErrorCodes
 {
-	const CannotAddFilterToExternalEmail = 1001;
+    public const CannotAddFilterToExternalEmail = 1001;
 
-	/**
-	 * @var array
-	 */
-	protected $aConsts = [
-		'CannotAddFilterToExternalEmail' => self::CannotAddFilterToExternalEmail,
-	];
+    /**
+     * @var array
+     */
+    protected $aConsts = [
+        'CannotAddFilterToExternalEmail' => self::CannotAddFilterToExternalEmail,
+    ];
 }

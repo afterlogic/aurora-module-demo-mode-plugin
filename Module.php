@@ -24,317 +24,286 @@ use MailSo\Mime\EmailCollection;
  */
 class Module extends \Aurora\System\Module\AbstractModule
 {
-	protected $bDemoUser = false;
+    protected $bDemoUser = false;
 
-	protected $bNewDemoUser = false;
+    protected $bNewDemoUser = false;
 
-	public function init()
-	{
-		$this->aErrors = [
-			Enums\ErrorCodes::CannotAddFilterToExternalEmail => $this->i18N('ERROR_CANNOT_ADD_FILTER_TO_EXTERNAL_EMAIL'),
-		];
+    public function init()
+    {
+        $this->aErrors = [
+            Enums\ErrorCodes::CannotAddFilterToExternalEmail => $this->i18N('ERROR_CANNOT_ADD_FILTER_TO_EXTERNAL_EMAIL'),
+        ];
 
-		$this->subscribeEvent('Core::Login::before', array($this, 'onBeforeLogin'), 10);
-		$this->subscribeEvent('Core::Login::after', array($this, 'onAfterLogin'), 10);
-		$this->subscribeEvent('Core::GetDigestHash::after', array($this, 'onAfterGetDigestHash'), 10);
+        $this->subscribeEvent('Core::Login::before', array($this, 'onBeforeLogin'), 10);
+        $this->subscribeEvent('Core::Login::after', array($this, 'onAfterLogin'), 10);
+        $this->subscribeEvent('Core::GetDigestHash::after', array($this, 'onAfterGetDigestHash'), 10);
 
-		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oUser instanceof \Aurora\Modules\Core\Models\User)
-		{
-//			$aMatches = array();
-//			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
+        $oUser = \Aurora\System\Api::getAuthenticatedUser();
+        if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
+            //			$aMatches = array();
+            //			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
 
-			$sDemoLogin = $this->getConfig('DemoLogin', '');
+            $sDemoLogin = $this->getConfig('DemoLogin', '');
 
-			$sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $oUser->PublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
-			$sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
+            $sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $oUser->PublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
+            $sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
 
-			if ($this->CheckDemoUser($oUser->PublicId))
-			{
-				$this->bDemoUser = true;
-				$this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeForbiddenAction'));
-				$this->subscribeEvent('UpdateAutoresponder::before', array($this, 'onBeforeForbiddenAction'));
-//				$this->subscribeEvent('UpdateFilters::before', array($this, 'onBeforeForbiddenAction'));
-				$this->subscribeEvent('UpdateForward::before', array($this, 'onBeforeForbiddenAction'));
-				$this->subscribeEvent('SetupSystemFolders::before', array($this, 'onBeforeForbiddenAction'));
-				$this->subscribeEvent('CreatePublicLink::before', array($this, 'onBeforeForbiddenAction'));
-				$this->subscribeEvent('CreateFilterInstance', array($this, 'onCreateFilterInstance'));
-			}
-		}
+            if ($this->CheckDemoUser($oUser->PublicId)) {
+                $this->bDemoUser = true;
+                $this->subscribeEvent('StandardAuth::UpdateAccount::before', array($this, 'onBeforeForbiddenAction'));
+                $this->subscribeEvent('UpdateAutoresponder::before', array($this, 'onBeforeForbiddenAction'));
+                //				$this->subscribeEvent('UpdateFilters::before', array($this, 'onBeforeForbiddenAction'));
+                $this->subscribeEvent('UpdateForward::before', array($this, 'onBeforeForbiddenAction'));
+                $this->subscribeEvent('SetupSystemFolders::before', array($this, 'onBeforeForbiddenAction'));
+                $this->subscribeEvent('CreatePublicLink::before', array($this, 'onBeforeForbiddenAction'));
+                $this->subscribeEvent('CreateFilterInstance', array($this, 'onCreateFilterInstance'));
+            }
+        }
 
-		$this->denyMethodsCallByWebApi([
-			'CheckDemoUser',
-		]);
-	}
+        $this->denyMethodsCallByWebApi([
+            'CheckDemoUser',
+        ]);
+    }
 
-	public function CheckDemoUser($sPublicId)
-	{
-		$sDemoLogin = $this->getConfig('DemoLogin', '');
+    public function CheckDemoUser($sPublicId)
+    {
+        $sDemoLogin = $this->getConfig('DemoLogin', '');
 
-		$sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $sPublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
-		$sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
+        $sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $sPublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
+        $sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
 
-		return ($sCurrentDomain === $sDemoDomain);
-	}
+        return ($sCurrentDomain === $sDemoDomain);
+    }
 
-	public function onBeforeForbiddenAction(&$aArgs, &$mResult)
-	{
-		throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::DemoAccount);
-	}
+    public function onBeforeForbiddenAction(&$aArgs, &$mResult)
+    {
+        throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::DemoAccount);
+    }
 
-	public function onBeforeLogin(&$aArgs, &$mResult)
-	{
-		$DemoUserType = $this->getConfig('DemoUserType', '');
-		$sDemoLogin = $this->getConfig('DemoLogin', '');
+    public function onBeforeLogin(&$aArgs, &$mResult)
+    {
+        $DemoUserType = $this->getConfig('DemoUserType', '');
+        $sDemoLogin = $this->getConfig('DemoLogin', '');
 
-		$bAdvancedMode = $this->getConfig('AdvancedMode', true);
-		if ($bAdvancedMode) # Advanced mode
-		{
-			if ($sDemoLogin === $aArgs['Login'])
-			{
-				switch ($DemoUserType)
-				{
-					case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Mail:
-						$userCredentials = $this->createMailbox();
-						break;
-					case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Db:
-						$userCredentials = $this->createDbUser();
-						break;
-				}
+        $bAdvancedMode = $this->getConfig('AdvancedMode', true);
+        if ($bAdvancedMode) { # Advanced mode
+            if ($sDemoLogin === $aArgs['Login']) {
+                switch ($DemoUserType) {
+                    case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Mail:
+                        $userCredentials = $this->createMailbox();
+                        break;
+                    case \Aurora\Modules\DemoModePlugin\Enums\DemoUserType::Db:
+                        $userCredentials = $this->createDbUser();
+                        break;
+                }
 
-				if (!empty($userCredentials))
-				{
-					$aArgs['Login'] = $userCredentials['login'];
-					$aArgs['Password'] = $userCredentials['password'];
-					$aArgs['NewDemoUser'] = true;
-					$this->bNewDemoUser = true;
-				}
-			}
-			else
-			{
-				$aLogin = explode('@', $aArgs['Login']);
-				$aDemoLogin = explode('@', $sDemoLogin);
-				if (isset($aLogin[1], $aDemoLogin[1]))
-				{
-					$sDomain = $aLogin[1];
-					$sDemoDomain = $aDemoLogin[1];
-					if ($sDomain === $sDemoDomain && $aArgs['Password'] === 'demo')
-					{
-						$sDemoRealPass = $this->getConfig('DemoRealPass', '');
-						$aArgs['Password'] = $sDemoRealPass;
-					}
-				}
-			}
-		}
-		else # Simple mode
-		{
-			if ($sDemoLogin === $aArgs['Login'])
-			{
-				$aArgs['Password'] = $this->getConfig('DemoRealPass', '');
-			}
-		}
-	}
+                if (!empty($userCredentials)) {
+                    $aArgs['Login'] = $userCredentials['login'];
+                    $aArgs['Password'] = $userCredentials['password'];
+                    $aArgs['NewDemoUser'] = true;
+                    $this->bNewDemoUser = true;
+                }
+            } else {
+                $aLogin = explode('@', $aArgs['Login']);
+                $aDemoLogin = explode('@', $sDemoLogin);
+                if (isset($aLogin[1], $aDemoLogin[1])) {
+                    $sDomain = $aLogin[1];
+                    $sDemoDomain = $aDemoLogin[1];
+                    if ($sDomain === $sDemoDomain && $aArgs['Password'] === 'demo') {
+                        $sDemoRealPass = $this->getConfig('DemoRealPass', '');
+                        $aArgs['Password'] = $sDemoRealPass;
+                    }
+                }
+            }
+        } else { # Simple mode
+            if ($sDemoLogin === $aArgs['Login']) {
+                $aArgs['Password'] = $this->getConfig('DemoRealPass', '');
+            }
+        }
+    }
 
-	protected function createMailbox()
-	{
-		$result = null;
-		$sDemoLogin = $this->getConfig('DemoLogin', '');
-		$sDemoRealPass = $this->getConfig('DemoRealPass', '');
-		$sApiUrl = $this->getConfig('ApiUrl', '');
-		$sNewUserLogin = '';
+    protected function createMailbox()
+    {
+        $result = null;
+        $sDemoLogin = $this->getConfig('DemoLogin', '');
+        $sDemoRealPass = $this->getConfig('DemoRealPass', '');
+        $sApiUrl = $this->getConfig('ApiUrl', '');
+        $sNewUserLogin = '';
 
-		if ($sDemoLogin && $sApiUrl !== '')
-		{
-			$sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
+        if ($sDemoLogin && $sApiUrl !== '') {
+            $sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
 
-			$sNewUserLogin = @file_get_contents($sApiUrl.$sDomain);
+            $sNewUserLogin = @file_get_contents($sApiUrl.$sDomain);
 
-			if ($sNewUserLogin)
-			{
-				$sEmail = $sNewUserLogin."@".$sDomain;
+            if ($sNewUserLogin) {
+                $sEmail = $sNewUserLogin."@".$sDomain;
 
-				$result = array(
-					'login' => $sEmail,
-					'password' => $sDemoRealPass
-				);
-			}
-		}
+                $result = array(
+                    'login' => $sEmail,
+                    'password' => $sDemoRealPass
+                );
+            }
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	protected function createDbUser()
-	{
-		$result = null;
-		$sDemoLogin = $this->getConfig('DemoLogin', '');
-		$sDemoRealPass = $this->getConfig('DemoRealPass', '');
-		$sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
-		$iDemoTenantId = false;
+    protected function createDbUser()
+    {
+        $result = null;
+        $sDemoLogin = $this->getConfig('DemoLogin', '');
+        $sDemoRealPass = $this->getConfig('DemoRealPass', '');
+        $sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
+        $iDemoTenantId = false;
 
-		$sLogin = 'user-'.base_convert(substr(str_pad(microtime(true)*100, 15, '0'), -11, 8), 10, 32).'@'.$sDomain;
-		$sPassword = !empty($sDemoRealPass) ? $sDemoRealPass : substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
+        $sLogin = 'user-'.base_convert(substr(str_pad(microtime(true)*100, 15, '0'), -11, 8), 10, 32).'@'.$sDomain;
+        $sPassword = !empty($sDemoRealPass) ? $sDemoRealPass : substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
 
-		\Aurora\Api::skipCheckUserRole(true);
+        \Aurora\Api::skipCheckUserRole(true);
 
-		$oSettings =&\Aurora\System\Api::GetSettings();
-		if ($oSettings->GetConf('EnableMultiTenant'))
-		{
-			$sDemoTenantName = 'Demo';
-			$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName($sDemoTenantName);
-			if (!$iDemoTenantId)
-			{
-				$iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->CreateTenant(0, $sDemoTenantName);
-			}
-		}
-		else
-		{
-			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
-			if ($oTenant instanceof \Aurora\Modules\Core\Models\Tenant)
-			{
-				$iDemoTenantId = $oTenant->Id;
-			}
-		}
+        $oSettings =&\Aurora\System\Api::GetSettings();
+        if ($oSettings->GetConf('EnableMultiTenant')) {
+            $sDemoTenantName = 'Demo';
+            $iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName($sDemoTenantName);
+            if (!$iDemoTenantId) {
+                $iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->CreateTenant(0, $sDemoTenantName);
+            }
+        } else {
+            $oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
+            if ($oTenant instanceof \Aurora\Modules\Core\Models\Tenant) {
+                $iDemoTenantId = $oTenant->Id;
+            }
+        }
 
-		$dbAccont = null;
-		if ($iDemoTenantId)
-		{
-			$dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount($iDemoTenantId, 0, $sLogin, $sPassword);
-		}
+        $dbAccont = null;
+        if ($iDemoTenantId) {
+            $dbAccont = \Aurora\Modules\StandardAuth\Module::Decorator()->CreateAccount($iDemoTenantId, 0, $sLogin, $sPassword);
+        }
 
-		\Aurora\Api::skipCheckUserRole(false);
+        \Aurora\Api::skipCheckUserRole(false);
 
-		if (isset($dbAccont) && isset($dbAccont['EntityId']))
-		{
-			$result = array(
-				'login' => $sLogin,
-				'password' => $sPassword
-			);
-		}
+        if (isset($dbAccont) && isset($dbAccont['EntityId'])) {
+            $result = array(
+                'login' => $sLogin,
+                'password' => $sPassword
+            );
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	public function onAfterLogin(&$aArgs, &$mResult)
-	{
-		if ($this->bNewDemoUser)
-		{
-			$this->populateInbox($aArgs);
-			$this->populateContacts($aArgs);
-		}
-	}
+    public function onAfterLogin(&$aArgs, &$mResult)
+    {
+        if ($this->bNewDemoUser) {
+            $this->populateInbox($aArgs);
+            $this->populateContacts($aArgs);
+        }
+    }
 
-	public function onAfterGetDigestHash(&$aArgs, &$mResult)
-	{
-		if ($this->CheckDemoUser($aArgs['Login']))
-		{
-			$mResult = \md5($aArgs['Login'] . ':' . $aArgs['Realm'] . ':demo');
-		}
-	}
+    public function onAfterGetDigestHash(&$aArgs, &$mResult)
+    {
+        if ($this->CheckDemoUser($aArgs['Login'])) {
+            $mResult = \md5($aArgs['Login'] . ':' . $aArgs['Realm'] . ':demo');
+        }
+    }
 
-	public function onCreateFilterInstance($aArgs)
-	{
-		if ($this->IsDemoUser()) {
-			$oAccount = $aArgs['Account'];
-			if ($oAccount instanceof MailAccount) {
-				$sEmail = $oAccount->Email;
-				$sEmailDomain = Email::Parse($sEmail)->getDomain();
-				if ($aArgs['Filter'] instanceof SieveFilter && !empty($aArgs['Filter']->Email)) {
-					$sFilterDomain = Email::Parse($aArgs['Filter']->Email)->getDomain();
-					if (strtolower($sEmailDomain) !== strtolower($sFilterDomain)) {
-						throw new ApiException(Enums\ErrorCodes::CannotAddFilterToExternalEmail);
-					}
-				}
-			}
-		}
-	}
+    public function onCreateFilterInstance($aArgs)
+    {
+        if ($this->IsDemoUser()) {
+            $oAccount = $aArgs['Account'];
+            if ($oAccount instanceof MailAccount) {
+                $sEmail = $oAccount->Email;
+                $sEmailDomain = Email::Parse($sEmail)->getDomain();
+                if ($aArgs['Filter'] instanceof SieveFilter && !empty($aArgs['Filter']->Email)) {
+                    $sFilterDomain = Email::Parse($aArgs['Filter']->Email)->getDomain();
+                    if (strtolower($sEmailDomain) !== strtolower($sFilterDomain)) {
+                        throw new ApiException(Enums\ErrorCodes::CannotAddFilterToExternalEmail);
+                    }
+                }
+            }
+        }
+    }
 
-	protected function populateContacts($aArgs)
-	{
-		$oContactsDecorator = \Aurora\Modules\Contacts\Module::Decorator();
-		$sLogin = isset($aArgs['Login']) ?  $aArgs['Login'] : '';
-		$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sLogin);
+    protected function populateContacts($aArgs)
+    {
+        $oContactsDecorator = \Aurora\Modules\Contacts\Module::Decorator();
+        $sLogin = isset($aArgs['Login']) ? $aArgs['Login'] : '';
+        $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sLogin);
 
-		if ($oContactsDecorator
-			&& $oUser instanceof \Aurora\Modules\Core\Models\User)
-		{
-			$oGroupResult = $oContactsDecorator->CreateGroup(
-				['Name' => 'Afterlogic Support Team'],
-				$oUser->Id
-			);
+        if ($oContactsDecorator
+            && $oUser instanceof \Aurora\Modules\Core\Models\User) {
+            $oGroupResult = $oContactsDecorator->CreateGroup(
+                ['Name' => 'Afterlogic Support Team'],
+                $oUser->Id
+            );
 
-			$aContactData = $this->getConfig('SampleContactData');
+            $aContactData = $this->getConfig('SampleContactData');
 
-			if (!empty($aContactData))
-			{
-				if (isset($aContactData['PrimaryEmail']) && !is_numeric($aContactData['PrimaryEmail']))
-				{
-					$aContactData['PrimaryEmail'] = constant($aContactData['PrimaryEmail']);
-				}
+            if (!empty($aContactData)) {
+                if (isset($aContactData['PrimaryEmail']) && !is_numeric($aContactData['PrimaryEmail'])) {
+                    $aContactData['PrimaryEmail'] = constant($aContactData['PrimaryEmail']);
+                }
 
-				if (is_array($aContactData))
-				{
-					if ($oGroupResult)
-					{
-						$aContactData['GroupUUIDs'] = array($oGroupResult);
-					}
+                if (is_array($aContactData)) {
+                    if ($oGroupResult) {
+                        $aContactData['GroupUUIDs'] = array($oGroupResult);
+                    }
 
-					$oContactsDecorator->CreateContact($aContactData, $oUser->Id);
-				}
-			}
+                    $oContactsDecorator->CreateContact($aContactData, $oUser->Id);
+                }
+            }
 
-			//Import of .vcf doesn't work properly because file should be uploaded to the server. It's impossible to import existing file.
-//			$sampleContactPath = dirname(__FILE__).'\data\contact.vcf';
-//			$sSampleContact = @file_get_contents(dirname(__FILE__).'\data\contact.vcf');
-//			if (!empty($sSampleContact))
-//			{
-//				$aContactData = array(
-//					'name' => 'contact.vcf',
-//					'type' => 'text/x-vcard',
-//					'tmp_name' => $sampleContactPath,
-//					'error' => 0,
-//					'size' => 796
-//				);
+            //Import of .vcf doesn't work properly because file should be uploaded to the server. It's impossible to import existing file.
+            //			$sampleContactPath = dirname(__FILE__).'\data\contact.vcf';
+            //			$sSampleContact = @file_get_contents(dirname(__FILE__).'\data\contact.vcf');
+            //			if (!empty($sSampleContact))
+            //			{
+            //				$aContactData = array(
+            //					'name' => 'contact.vcf',
+            //					'type' => 'text/x-vcard',
+            //					'tmp_name' => $sampleContactPath,
+            //					'error' => 0,
+            //					'size' => 796
+            //				);
 
-//				$oContactsDecorator->Import($aContactData);
-//			}
-		}
-	}
+            //				$oContactsDecorator->Import($aContactData);
+            //			}
+        }
+    }
 
-	protected function populateInbox($aArgs)
-	{
-		$sResult = false;
-		$result = preg_match("/(.+)@(?:localhost|.+\..+)/", $aArgs['Login'], $matches);
+    protected function populateInbox($aArgs)
+    {
+        $sResult = false;
+        $result = preg_match("/(.+)@(?:localhost|.+\..+)/", $aArgs['Login'], $matches);
 
-		if ($result && isset($matches[1]))
-		{
-			$sUserLogin = $matches[1];
-			$sPostProcessScript = $this->getConfig('PostProcessScript', '');
-			$sPostProcessType = $this->getConfig('PostProcessType', '');
+        if ($result && isset($matches[1])) {
+            $sUserLogin = $matches[1];
+            $sPostProcessScript = $this->getConfig('PostProcessScript', '');
+            $sPostProcessType = $this->getConfig('PostProcessType', '');
 
-			if (!empty($sPostProcessScript) && !empty($sPostProcessType))
-			{
-				$sResult = trim(shell_exec($sPostProcessScript. ' ' . $sPostProcessType . ' ' . $sUserLogin));
-			}
-		}
+            if (!empty($sPostProcessScript) && !empty($sPostProcessType)) {
+                $sResult = trim(shell_exec($sPostProcessScript. ' ' . $sPostProcessType . ' ' . $sUserLogin));
+            }
+        }
 
-		return $sResult;
-	}
+        return $sResult;
+    }
 
-	/***** private functions *****/
+    /***** private functions *****/
 
-	/***** public functions might be called with web API *****/
+    /***** public functions might be called with web API *****/
 
-	public function IsDemoUser()
-	{
-		return $this->bDemoUser || $this->bNewDemoUser;
-	}
+    public function IsDemoUser()
+    {
+        return $this->bDemoUser || $this->bNewDemoUser;
+    }
 
-	public function GetSettings()
-	{
-		return array(
-			'IsDemoUser' => $this->IsDemoUser()
-		);
-	}
+    public function GetSettings()
+    {
+        return array(
+            'IsDemoUser' => $this->IsDemoUser()
+        );
+    }
 
-	/***** public functions might be called with web API *****/
+    /***** public functions might be called with web API *****/
 }
