@@ -7,6 +7,7 @@
 
 namespace Aurora\Modules\DemoModePlugin;
 
+use Aurora\Modules\Core\Module as CoreModule;
 use Aurora\Modules\Mail\Classes\SieveFilter;
 use Aurora\Modules\Mail\Models\MailAccount;
 use Aurora\System\Exceptions\ApiException;
@@ -27,6 +28,14 @@ class Module extends \Aurora\System\Module\AbstractModule
     protected $bDemoUser = false;
 
     protected $bNewDemoUser = false;
+
+    /**
+     * @return Module
+     */
+    public static function Decorator()
+    {
+        return parent::Decorator();
+    }
 
     public function init()
     {
@@ -169,7 +178,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->CreateTenant(0, $sDemoTenantName);
             }
         } else {
-            $oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
+            $oTenant = CoreModule::Decorator()->GetDefaultGlobalTenant();
             if ($oTenant instanceof \Aurora\Modules\Core\Models\Tenant) {
                 $iDemoTenantId = $oTenant->Id;
             }
