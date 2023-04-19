@@ -34,7 +34,7 @@ class Settings extends \Aurora\System\Module\Settings
                 "",
             ),
             "DemoUserType" => new SettingsProperty(
-                "Mail",
+                Enums\DemoUserType::Mail,
                 "spec",
                 Enums\DemoUserType::class,
                 "",

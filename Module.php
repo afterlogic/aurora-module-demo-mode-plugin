@@ -21,6 +21,8 @@ use MailSo\Mime\EmailCollection;
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2023, Afterlogic Corp.
  *
+ * @property Settings $oModuleSettings
+ *
  * @package Modules
  */
 class Module extends \Aurora\System\Module\AbstractModule
@@ -61,7 +63,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             //			$aMatches = array();
             //			preg_match('/demo\d*@.+/', $oUser->PublicId, $aMatches, PREG_OFFSET_CAPTURE);
 
-            $sDemoLogin = $this->getConfig('DemoLogin', '');
+            $sDemoLogin = $this->oModuleSettings->DemoLogin;
 
             $sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $oUser->PublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
             $sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
@@ -85,7 +87,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     public function CheckDemoUser($sPublicId)
     {
-        $sDemoLogin = $this->getConfig('DemoLogin', '');
+        $sDemoLogin = $this->oModuleSettings->DemoLogin;
 
         $sCurrentDomain = preg_match("/.+@(localhost|.+\..+)/", $sPublicId, $matches) && isset($matches[1]) ? $matches[1] : '';
         $sDemoDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
@@ -100,10 +102,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     public function onBeforeLogin(&$aArgs, &$mResult)
     {
-        $DemoUserType = $this->getConfig('DemoUserType', '');
-        $sDemoLogin = $this->getConfig('DemoLogin', '');
+        $DemoUserType = $this->oModuleSettings->DemoUserType;
+        $sDemoLogin = $this->oModuleSettings->DemoLogin;
 
-        $bAdvancedMode = $this->getConfig('AdvancedMode', true);
+        $bAdvancedMode = $this->oModuleSettings->AdvancedMode;
         if ($bAdvancedMode) { # Advanced mode
             if ($sDemoLogin === $aArgs['Login']) {
                 switch ($DemoUserType) {
@@ -128,14 +130,14 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $sDomain = $aLogin[1];
                     $sDemoDomain = $aDemoLogin[1];
                     if ($sDomain === $sDemoDomain && $aArgs['Password'] === 'demo') {
-                        $sDemoRealPass = $this->getConfig('DemoRealPass', '');
+                        $sDemoRealPass = $this->oModuleSettings->DemoRealPass;
                         $aArgs['Password'] = $sDemoRealPass;
                     }
                 }
             }
         } else { # Simple mode
             if ($sDemoLogin === $aArgs['Login']) {
-                $aArgs['Password'] = $this->getConfig('DemoRealPass', '');
+                $aArgs['Password'] = $this->oModuleSettings->DemoRealPass;
             }
         }
     }
@@ -143,9 +145,9 @@ class Module extends \Aurora\System\Module\AbstractModule
     protected function createMailbox()
     {
         $result = null;
-        $sDemoLogin = $this->getConfig('DemoLogin', '');
-        $sDemoRealPass = $this->getConfig('DemoRealPass', '');
-        $sApiUrl = $this->getConfig('ApiUrl', '');
+        $sDemoLogin = $this->oModuleSettings->DemoLogin;
+        $sDemoRealPass = $this->oModuleSettings->DemoRealPass;
+        $sApiUrl = $this->oModuleSettings->ApiUrl;
         $sNewUserLogin = '';
 
         if ($sDemoLogin && $sApiUrl !== '') {
@@ -169,8 +171,8 @@ class Module extends \Aurora\System\Module\AbstractModule
     protected function createDbUser()
     {
         $result = null;
-        $sDemoLogin = $this->getConfig('DemoLogin', '');
-        $sDemoRealPass = $this->getConfig('DemoRealPass', '');
+        $sDemoLogin = $this->oModuleSettings->DemoLogin;
+        $sDemoRealPass = $this->oModuleSettings->DemoRealPass;
         $sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
         $iDemoTenantId = false;
 
@@ -255,7 +257,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $oUser->Id
             );
 
-            $aContactData = $this->getConfig('SampleContactData');
+            $aContactData = $this->oModuleSettings->SampleContactData;
 
             if (!empty($aContactData)) {
                 if (isset($aContactData['PrimaryEmail']) && !is_numeric($aContactData['PrimaryEmail'])) {
@@ -296,8 +298,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         if ($result && isset($matches[1])) {
             $sUserLogin = $matches[1];
-            $sPostProcessScript = $this->getConfig('PostProcessScript', '');
-            $sPostProcessType = $this->getConfig('PostProcessType', '');
+            $sPostProcessScript = $this->oModuleSettings->PostProcessScript;
+            $sPostProcessType = $this->oModuleSettings->PostProcessType;
 
             if (!empty($sPostProcessScript) && !empty($sPostProcessType)) {
                 $sResult = trim(shell_exec($sPostProcessScript. ' ' . $sPostProcessType . ' ' . $sUserLogin));
