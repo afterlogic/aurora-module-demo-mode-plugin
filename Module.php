@@ -189,7 +189,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         \Aurora\Api::skipCheckUserRole(true);
 
         $oSettings =&\Aurora\System\Api::GetSettings();
-        if ($oSettings->GetConf('EnableMultiTenant')) {
+        if ($oSettings->GetValue('EnableMultiTenant')) {
             $sDemoTenantName = 'Demo';
             $iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName($sDemoTenantName);
             if (!$iDemoTenantId) {
