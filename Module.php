@@ -160,10 +160,10 @@ class Module extends \Aurora\System\Module\AbstractModule
         if ($sDemoLogin && $sApiUrl !== '') {
             $sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
 
-            $sNewUserLogin = @file_get_contents($sApiUrl.$sDomain);
+            $sNewUserLogin = @file_get_contents($sApiUrl . $sDomain);
 
             if ($sNewUserLogin) {
-                $sEmail = $sNewUserLogin."@".$sDomain;
+                $sEmail = $sNewUserLogin . "@" . $sDomain;
 
                 $result = array(
                     'login' => $sEmail,
@@ -183,12 +183,12 @@ class Module extends \Aurora\System\Module\AbstractModule
         $sDomain = preg_match("/.+@(localhost|.+\..+)/", $sDemoLogin, $matches) && isset($matches[1]) ? $matches[1] : '';
         $iDemoTenantId = false;
 
-        $sLogin = 'user-'.base_convert(substr(str_pad(microtime(true)*100, 15, '0'), -11, 8), 10, 32).'@'.$sDomain;
+        $sLogin = 'user-' . base_convert(substr(str_pad(microtime(true) * 100, 15, '0'), -11, 8), 10, 32) . '@' . $sDomain;
         $sPassword = !empty($sDemoRealPass) ? $sDemoRealPass : substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890___---%%%$$$&&&'), 0, 20);
 
         \Aurora\Api::skipCheckUserRole(true);
 
-        $oSettings =&\Aurora\System\Api::GetSettings();
+        $oSettings = &\Aurora\System\Api::GetSettings();
         if ($oSettings->EnableMultiTenant) {
             $sDemoTenantName = 'Demo';
             $iDemoTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName($sDemoTenantName);
@@ -309,7 +309,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             $sPostProcessType = $this->oModuleSettings->PostProcessType;
 
             if (!empty($sPostProcessScript) && !empty($sPostProcessType)) {
-                $sResult = trim(shell_exec($sPostProcessScript. ' ' . $sPostProcessType . ' ' . $sUserLogin));
+                $sResult = trim(shell_exec($sPostProcessScript . ' ' . $sPostProcessType . ' ' . $sUserLogin));
             }
         }
 
