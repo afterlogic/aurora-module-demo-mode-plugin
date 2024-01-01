@@ -257,26 +257,40 @@ class Module extends \Aurora\System\Module\AbstractModule
         $sLogin = isset($aArgs['Login']) ? $aArgs['Login'] : '';
         $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sLogin);
 
-        if ($oContactsDecorator
-            && $oUser instanceof \Aurora\Modules\Core\Models\User) {
-            $oGroupResult = $oContactsDecorator->CreateGroup(
-                ['Name' => 'Afterlogic Support Team'],
-                $oUser->Id
-            );
+        if ($oContactsDecorator && $oUser instanceof \Aurora\Modules\Core\Models\User) {
 
-            $aContactData = $this->oModuleSettings->SampleContactData;
+            $aAddressBooks = $oContactsDecorator->GetStorages();
+            $oPersonalAddressBook = null;
 
-            if (!empty($aContactData)) {
-                if (isset($aContactData['PrimaryEmail']) && !is_numeric($aContactData['PrimaryEmail'])) {
-                    $aContactData['PrimaryEmail'] = constant($aContactData['PrimaryEmail']);
+            foreach ($aAddressBooks as $oAddressBook) {
+                if ($oAddressBook['Id'] === \Aurora\Modules\Contacts\Enums\StorageType::Personal) {
+                    $oPersonalAddressBook = $oAddressBook;
                 }
+            } 
 
-                if (is_array($aContactData)) {
-                    if ($oGroupResult) {
-                        $aContactData['GroupUUIDs'] = array($oGroupResult);
+            if ($oPersonalAddressBook) {
+                $oGroupResult = $oContactsDecorator->CreateGroup(
+                    ['Name' => 'Afterlogic Support Team'],
+                    $oUser->Id
+                );
+
+                $aContactData = $this->oModuleSettings->SampleContactData;
+
+                if (!empty($aContactData)) {
+                    if (isset($aContactData['PrimaryEmail']) && !is_numeric($aContactData['PrimaryEmail'])) {
+                        $aContactData['PrimaryEmail'] = constant($aContactData['PrimaryEmail']);
                     }
 
-                    $oContactsDecorator->CreateContact($aContactData, $oUser->Id);
+                    if (is_array($aContactData)) {
+                        if ($oGroupResult) {
+                            $aContactData['GroupUUIDs'] = array($oGroupResult);
+                        }
+
+                        $aContactData['Storage'] = $oPersonalAddressBook['Id'];
+                        $aContactData['AddressBookId'] = $oPersonalAddressBook['EntityId'];
+
+                        $oContactsDecorator->CreateContact($aContactData, $oUser->Id);
+                    }
                 }
             }
 
