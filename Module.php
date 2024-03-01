@@ -266,7 +266,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 if ($oAddressBook['Id'] === \Aurora\Modules\Contacts\Enums\StorageType::Personal) {
                     $oPersonalAddressBook = $oAddressBook;
                 }
-            } 
+            }
 
             if ($oPersonalAddressBook) {
                 $oGroupResult = $oContactsDecorator->CreateGroup(
@@ -283,7 +283,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                     if (is_array($aContactData)) {
                         if ($oGroupResult) {
-                            $aContactData['GroupUUIDs'] = array($oGroupResult);
+                            $aContactData['GroupUUIDs'] = array($oGroupResult['UUID']);
                         }
 
                         $aContactData['Storage'] = $oPersonalAddressBook['Id'];
